@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0c1713">
+  <title>HabitatSignal · Wildlife Monitor</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0c1713;--panel:#13221b;--panel2:#172920;--line:#263b2f;--text:#eef5ef;--muted:#9db1a2;--green:#9be4ae;--mint:#c5f3d0;--amber:#f3c879;--red:#ef9292}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 72% -10%,#1b3b2a 0,transparent 38%),var(--bg);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+    .shell{max-width:1440px;margin:0 auto;padding:28px 34px 40px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}.brand{display:flex;align-items:center;gap:13px}.mark{height:40px;width:40px;border:1px solid #4a7659;border-radius:13px;display:grid;place-items:center;color:var(--mint);background:#183323;font-size:21px}.brand h1{font-size:19px;letter-spacing:.02em;margin:0}.brand p{margin:1px 0 0;font-size:12px;color:var(--muted)}.badge{border:1px solid var(--line);border-radius:99px;padding:7px 12px;color:var(--muted);font-size:12px;display:flex;align-items:center;gap:8px}.dot{height:7px;width:7px;border-radius:50%;background:#75897a}.dot.live{background:#7de39c;box-shadow:0 0 10px #64d887}
+    .intro{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px;gap:20px}.eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:.13em;font-size:10px;font-weight:700}.intro h2{font-size:29px;letter-spacing:-.035em;margin:5px 0 4px}.intro p{color:var(--muted);margin:0;max-width:650px}.source-form{display:flex;gap:9px;min-width:min(480px,42vw)}input{min-width:0;flex:1;background:#101c16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--text);outline:none}input:focus{border-color:#75b987}.btn{border:0;border-radius:10px;padding:11px 17px;font-weight:700;cursor:pointer}.btn.start{background:var(--mint);color:#112016}.btn.stop{background:#522b2b;color:#ffe4e4}.btn:disabled{opacity:.45;cursor:default}
+    .grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(290px,.85fr);gap:17px}.card{background:linear-gradient(145deg,rgba(23,41,32,.94),rgba(16,29,22,.96));border:1px solid var(--line);border-radius:16px;overflow:hidden}.card-head{display:flex;justify-content:space-between;align-items:center;padding:15px 17px;border-bottom:1px solid #22372b}.card-head strong{font-size:13px}.sub{font-size:11px;color:var(--muted)}.feed{aspect-ratio:16/9;background:#08100c;display:grid;place-items:center;position:relative}.feed img{width:100%;height:100%;object-fit:contain}.empty{text-align:center;color:#92a598;max-width:310px;padding:20px}.empty .icon{font-size:32px;margin-bottom:7px}.empty p{font-size:13px}.feed img[src=""]{display:none}.feed-meta{display:flex;justify-content:space-between;padding:11px 16px;color:var(--muted);font-size:11px}.side{display:flex;flex-direction:column;gap:17px}.statrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}.stat{background:rgba(6,16,10,.25);border:1px solid #24382c;border-radius:12px;padding:14px}.stat .label{font-size:11px;color:var(--muted)}.stat .value{font-size:29px;font-weight:700;letter-spacing:-.04em;margin-top:2px}.stat .unit{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0}.species{padding:5px 16px 16px}.species-title{font-size:11px;color:var(--muted);margin:0 0 8px}.species-list{display:grid;gap:8px}.species-item{display:flex;align-items:center;gap:9px;font-size:13px}.species-item .count{margin-left:auto;color:var(--mint);font-variant-numeric:tabular-nums}.species-item .bar{height:4px;background:#2b4935;border-radius:9px;flex:1;max-width:70px;overflow:hidden}.species-item .bar i{display:block;height:100%;background:#8edaa5;border-radius:9px}.empty-row{font-size:12px;color:#8ea194;padding:4px 0}.note{padding:13px 15px;color:#c3d4c8;font-size:11px;line-height:1.6;border-top:1px solid #263b2f}.history{margin-top:17px}.history table{width:100%;border-collapse:collapse;font-size:12px}.history th{text-align:left;color:#93a999;font-weight:600}.history th,.history td{padding:10px 16px;border-bottom:1px solid #213529}.history tr:last-child td{border-bottom:0}.tag{color:#c5f3d0;background:#203d2b;border-radius:99px;padding:3px 8px}.error{color:var(--red);font-size:12px;padding:0 17px 12px}.footer{margin-top:19px;color:#74887a;font-size:11px;text-align:center}.status-text{color:var(--muted)}
+    @media(max-width:950px){.shell{padding:20px}.intro{align-items:stretch;flex-direction:column}.source-form{min-width:0;width:100%}.grid{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.note{grid-column:1/-1}.intro h2{font-size:25px}}
+    @media(max-width:600px){.shell{padding:16px}.top{margin-bottom:20px}.badge{font-size:10px}.side{display:flex}.source-form{flex-wrap:wrap}.source-form input{flex-basis:100%}.source-form .btn{flex:1}.feed{aspect-ratio:4/3}.history{overflow:auto}.history table{min-width:500px}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div class="brand"><div class="mark">⌁</div><div><h1>HabitatSignal</h1><p>Wildlife activity monitor</p></div></div>
+    <div class="badge"><span id="status-dot" class="dot"></span><span id="status-label">Ready to observe</span></div>
+  </header>
+  <section class="intro">
+    <div><div class="eyebrow">Field observation · Prototype</div><h2>See who visits the habitat.</h2><p>Track wildlife appearances from a fixed camera and turn video into a clear, reviewable observation log.</p></div>
+    <form class="source-form" id="source-form"><input id="source" autocomplete="off" placeholder="Camera index, video path, or direct RTSP/HTTP stream URL" value="0"><button class="btn start" id="start-button" type="submit">Start monitor</button><button class="btn stop" id="stop-button" type="button" disabled>Stop</button></form>
+  </section>
+  <section class="grid">
+    <article class="card">
+      <div class="card-head"><strong>Live camera</strong><span class="sub" id="source-name">No source connected</span></div>
+      <div class="feed"><div id="empty" class="empty"><div class="icon">◉</div><strong>Camera feed is waiting</strong><p>Connect a camera or a direct video stream. For a first test, use a local webcam or a short wildlife video.</p></div><img id="feed-image" alt="Annotated wildlife camera stream"></div>
+      <div class="feed-meta"><span id="frame-count">0 frames analyzed</span><span id="last-frame">Waiting for first frame</span></div>
+      <div class="error" id="error-message" hidden></div>
+    </article>
+    <aside class="side">
+      <article class="card">
+        <div class="card-head"><strong>Current observation</strong><span class="sub">This camera session</span></div>
+        <div class="statrow"><div class="stat"><div class="label">Tracked now</div><div class="value" id="active-count">0</div></div><div class="stat"><div class="label">Sightings logged</div><div class="value" id="visit-count">0</div></div></div>
+        <div class="species"><p class="species-title">ACTIVE TRACKS BY MODEL LABEL</p><div class="species-list" id="species-list"><div class="empty-row">No animals detected yet</div></div></div>
+        <div class="note">A sighting is a tracked appearance in this camera view. Repeat visits and missed detections can affect counts; this is not a wildlife population estimate.</div>
+      </article>
+      <article class="card">
+        <div class="card-head"><strong>Observation guide</strong><span class="sub">Human review recommended</span></div>
+        <div class="species">
+          <p class="species-title">SUPPORTED PRETRAINED LABELS</p>
+          <div class="species-list">
+            <div class="species-item">Bird <span class="sub">feeder visitors</span></div>
+            <div class="species-item">Elephant · Zebra · Giraffe</div>
+            <div class="species-item">Bear · Horse · Sheep · Cow</div>
+            <div class="species-item">Cat · Dog</div>
+          </div>
+        </div>
+        <div class="note">The prototype reports what the detector sees in the frame. It does not infer animal health, habitat quality, or conservation status.</div>
+      </article>
+    </aside>
+  </section>
+  <section class="card history">
+    <div class="card-head"><strong>Recent sightings</strong><span class="sub">Latest camera sessions</span></div>
+    <table><thead><tr><th>Species label</th><th>First seen (UTC)</th><th>Confidence</th><th>Camera session</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="sub">Sightings will appear here after detections.</td></tr></tbody></table>
+  </section>
+  <footer class="footer">HabitatSignal · Computer vision supports observation; ecological conclusions need field validation.</footer>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const stateLabels = {idle:"Ready to observe",starting:"Loading model…",running:"Monitoring live",stopping:"Stopping…",error:"Needs attention"};
+let previousStatus = "idle";
+
+$("source-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  $("error-message").hidden = true;
+  try {
+    const response = await fetch("/api/start", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({source:$("source").value.trim()})});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Could not start camera");
+    $("feed-image").src = "/video_feed?session=" + Date.now();
+    $("empty").hidden = true;
+  } catch (error) { showError(error.message); }
+});
+
+$("stop-button").addEventListener("click", async () => {
+  await fetch("/api/stop", {method:"POST"});
+});
+
+function showError(message) {
+  $("error-message").textContent = message;
+  $("error-message").hidden = false;
+}
+
+function renderSpecies(counts) {
+  const entries = Object.entries(counts || {}).sort((a,b)=>b[1]-a[1]);
+  const max = Math.max(1, ...entries.map(([,count])=>count));
+  $("species-list").innerHTML = entries.length ? entries.map(([species,count]) =>
+    `<div class="species-item"><span>${species}</span><span class="bar"><i style="width:${Math.round(count/max*100)}%"></i></span><span class="count">${count}</span></div>`
+  ).join("") : '<div class="empty-row">No animals detected yet</div>';
+}
+
+async function refresh() {
+  try {
+    const [stateResponse, historyResponse] = await Promise.all([fetch("/api/state"),fetch("/api/history")]);
+    const state = await stateResponse.json();
+    const history = await historyResponse.json();
+    $("status-label").textContent = stateLabels[state.status] || state.status;
+    $("status-dot").classList.toggle("live", state.status === "running");
+    $("start-button").disabled = ["starting","running","stopping"].includes(state.status);
+    $("stop-button").disabled = !["starting","running"].includes(state.status);
+    $("source").disabled = ["starting","running","stopping"].includes(state.status);
+    $("source-name").textContent = state.source || "No source connected";
+    $("frame-count").textContent = `${state.frames_processed || 0} frames analyzed`;
+    $("last-frame").textContent = state.last_frame_at || "Waiting for first frame";
+    const tracks = state.active_tracks || [];
+    $("active-count").textContent = tracks.length;
+    $("visit-count").textContent = state.summary?.total_visits || 0;
+    renderSpecies(state.active_by_species);
+    if (state.error) showError(state.error);
+    else $("error-message").hidden = true;
+    if (state.status === "idle" && previousStatus === "running") {
+      $("feed-image").src = "";
+      $("empty").hidden = false;
+    }
+    previousStatus = state.status;
+    $("history-body").innerHTML = history.length ? history.map(item =>
+      `<tr><td><span class="tag">${item.species}</span></td><td>${item.first_seen.replace("T"," ").replace("+00:00","")}</td><td>${Math.round(item.confidence*100)}%</td><td>${item.run_id.slice(0,8)}</td></tr>`
+    ).join("") : '<tr><td colspan="4" class="sub">Sightings will appear here after detections.</td></tr>';
+  } catch (error) { showError("Dashboard connection lost. Refresh the page to reconnect."); }
+}
+setInterval(refresh, 1000);
+refresh();
+</script>
+</body>
+</html>

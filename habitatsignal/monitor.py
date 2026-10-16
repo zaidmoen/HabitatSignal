@@ -12,6 +12,7 @@ import cv2
 
 from habitatsignal.database import ObservationStore
 from habitatsignal.species import WILDLIFE_CLASS_IDS, model_class_ids
+from habitatsignal.sources import is_youtube_url, resolve_youtube_stream
 
 
 class WildlifeMonitor:
@@ -48,7 +49,7 @@ class WildlifeMonitor:
             if not (source.isdecimal() or source.startswith(("rtsp://", "rtsps://", "http://", "https://")) or Path(source).is_file()):
                 return {
                     "ok": False,
-                    "error": "Use a camera index, an existing video file, or a direct RTSP/HTTP video stream URL.",
+                    "error": "Use a camera index, existing video file, direct RTSP/HTTP stream, or public YouTube video/live URL.",
                 }
             self._stop_event.clear()
             self._run_id = str(uuid.uuid4())
@@ -95,9 +96,10 @@ class WildlifeMonitor:
             from ultralytics import YOLO
 
             model = YOLO(self.model_path)
-            capture = cv2.VideoCapture(source)
+            capture_source = resolve_youtube_stream(source) if isinstance(source, str) and is_youtube_url(source) else source
+            capture = cv2.VideoCapture(capture_source)
             if not capture.isOpened():
-                raise RuntimeError("Could not open this source. Check the camera, file, or direct stream URL.")
+                raise RuntimeError("Could not open this source. Check that the camera, file, or public stream is available.")
             with self._lock:
                 self._status = "running"
 
@@ -198,5 +200,4 @@ class WildlifeMonitor:
                 yield b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
             if status in {"idle", "error"}:
                 return
-
 

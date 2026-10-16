@@ -1,0 +1,10 @@
+# Copy this file to fruitfly.data.yaml and set `path` to your dataset root.
+# The directory should contain images/train, images/val, images/test and
+# matching labels/train, labels/val, labels/test in Ultralytics YOLO format.
+path: /absolute/path/to/fruitfly_dataset
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: fruitfly

@@ -1,26 +1,42 @@
-"""Background camera reader and wildlife detection worker."""
+"""Background camera reader and small-insect detection worker."""
 
 from __future__ import annotations
 
 import threading
 import time
 import uuid
+import os
 from pathlib import Path
 from typing import Any, Iterator
 
 import cv2
 
 from habitatsignal.database import ObservationStore
-from habitatsignal.species import WILDLIFE_CLASS_IDS, model_class_ids
+from habitatsignal.species import model_class_ids, names_by_id
 from habitatsignal.sources import is_youtube_url, resolve_youtube_stream
 
 
 class WildlifeMonitor:
     """Read a local or network video source and expose annotated frames."""
 
-    def __init__(self, store: ObservationStore, model_path: str = "yolo26n.pt"):
+    def __init__(
+        self,
+        store: ObservationStore,
+        model_path: str = "models/fruitfly.pt",
+        image_size: int | None = None,
+        confidence: float | None = None,
+        iou: float | None = None,
+        max_detections: int | None = None,
+    ):
         self.store = store
         self.model_path = model_path
+        self.image_size = image_size or int(os.getenv("HABITATSIGNAL_IMGSZ", "1280"))
+        self.confidence = confidence if confidence is not None else float(os.getenv("HABITATSIGNAL_CONF", "0.12"))
+        self.iou = iou if iou is not None else float(os.getenv("HABITATSIGNAL_IOU", "0.5"))
+        self.max_detections = max_detections or int(os.getenv("HABITATSIGNAL_MAX_DET", "500"))
+        self.tracker_config = str(
+            Path(__file__).resolve().parent.parent / "trackers" / "bytetrack-fruitfly.yaml"
+        )
         self._lock = threading.RLock()
         self._frame_condition = threading.Condition(self._lock)
         self._thread: threading.Thread | None = None
@@ -32,6 +48,7 @@ class WildlifeMonitor:
         self._run_id: str | None = None
         self._source_label: str | None = None
         self._active_tracks: dict[str, dict[str, Any]] = {}
+        self._class_names: dict[int, str] = {}
         self._observed_track_ids: set[str] = set()
         self._total_frames = 0
         self._last_frame_at: str | None = None
@@ -95,6 +112,11 @@ class WildlifeMonitor:
         try:
             from ultralytics import YOLO
 
+            if not Path(self.model_path).is_file() and Path(self.model_path).name == "fruitfly.pt":
+                raise RuntimeError(
+                    "The fruit-fly model is not trained yet. Follow the Training section in README.md, "
+                    "then set HABITATSIGNAL_MODEL to the trained checkpoint."
+                )
             model = YOLO(self.model_path)
             capture_source = resolve_youtube_stream(source) if isinstance(source, str) and is_youtube_url(source) else source
             capture = cv2.VideoCapture(capture_source)
@@ -103,7 +125,8 @@ class WildlifeMonitor:
             with self._lock:
                 self._status = "running"
 
-            class_ids = model_class_ids()
+            self._class_names = names_by_id(model.names)
+            class_ids = model_class_ids(self._class_names)
             while not self._stop_event.is_set():
                 ok, frame = capture.read()
                 if not ok:
@@ -115,16 +138,19 @@ class WildlifeMonitor:
                 result = model.track(
                     frame,
                     persist=True,
-                    tracker="bytetrack.yaml",
+                    tracker=self.tracker_config,
                     classes=class_ids,
-                    conf=0.25,
+                    conf=self.confidence,
+                    iou=self.iou,
+                    imgsz=self.image_size,
+                    max_det=self.max_detections,
                     verbose=False,
                 )[0]
                 self._record_tracks(result, run_id)
                 annotated = result.plot()
                 cv2.putText(
                     annotated,
-                    "HabitatSignal  |  observations are not a population estimate",
+                    "HabitatSignal  |  tracked fly appearances, not an exact fly count",
                     (16, 30),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.62,
@@ -164,7 +190,7 @@ class WildlifeMonitor:
         with self._lock:
             current_tracks: dict[str, dict[str, Any]] = {}
             for track_id, class_id, confidence, box in zip(track_ids, class_ids, confidences, xyxy):
-                species = WILDLIFE_CLASS_IDS.get(int(class_id))
+                species = self._class_names.get(int(class_id))
                 if species is None:
                     continue
                 key = str(track_id)

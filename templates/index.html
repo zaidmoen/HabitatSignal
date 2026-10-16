@@ -18,17 +18,17 @@
 <body>
 <main class="shell">
   <header class="top">
-    <div class="brand"><div class="mark">⌁</div><div><h1>HabitatSignal</h1><p>Wildlife activity monitor</p></div></div>
+    <div class="brand"><div class="mark">⌁</div><div><h1>HabitatSignal</h1><p>Fruit fly activity monitor</p></div></div>
     <div class="badge"><span id="status-dot" class="dot"></span><span id="status-label">Ready to observe</span></div>
   </header>
   <section class="intro">
-    <div><div class="eyebrow">Field observation · Prototype</div><h2>See who visits the habitat.</h2><p>Track wildlife appearances from a fixed camera and turn video into a clear, reviewable observation log.</p></div>
+    <div><div class="eyebrow">Precision insect observation · Prototype</div><h2>Spot tiny flies around fruit.</h2><p>Detect and track fruit-fly appearances near produce with a close-up camera and a detector trained for small insects.</p></div>
     <form class="source-form" id="source-form"><input id="source" autocomplete="off" placeholder="Camera, video, RTSP/HTTP stream, or YouTube Live URL" value="0"><button class="btn start" id="start-button" type="submit">Start monitor</button><button class="btn stop" id="stop-button" type="button" disabled>Stop</button></form>
   </section>
   <section class="grid">
     <article class="card">
       <div class="card-head"><strong>Live camera</strong><span class="sub" id="source-name">No source connected</span></div>
-      <div class="feed"><div id="empty" class="empty"><div class="icon">◉</div><strong>Camera feed is waiting</strong><p>Paste a public YouTube Live link, connect a direct camera stream, or test with a local wildlife video.</p></div><img id="feed-image" alt="Annotated wildlife camera stream"></div>
+      <div class="feed"><div id="empty" class="empty"><div class="icon">◉</div><strong>Camera feed is waiting</strong><p>Point a close-focus camera at fruit, then connect it or use a short insect video.</p></div><img id="feed-image" alt="Annotated fruit fly camera stream"></div>
       <div class="feed-meta"><span id="frame-count">0 frames analyzed</span><span id="last-frame">Waiting for first frame</span></div>
       <div class="error" id="error-message" hidden></div>
     </article>
@@ -36,29 +36,28 @@
       <article class="card">
         <div class="card-head"><strong>Current observation</strong><span class="sub">This camera session</span></div>
         <div class="statrow"><div class="stat"><div class="label">Tracked now</div><div class="value" id="active-count">0</div></div><div class="stat"><div class="label">Sightings logged</div><div class="value" id="visit-count">0</div></div></div>
-        <div class="species"><p class="species-title">ACTIVE TRACKS BY MODEL LABEL</p><div class="species-list" id="species-list"><div class="empty-row">No animals detected yet</div></div></div>
-        <div class="note">A sighting is a tracked appearance in this camera view. Repeat visits and missed detections can affect counts; this is not a wildlife population estimate.</div>
+        <div class="species"><p class="species-title">ACTIVE TRACKS BY MODEL LABEL</p><div class="species-list" id="species-list"><div class="empty-row">No flies detected yet</div></div></div>
+        <div class="note">A track is one appearance in the camera view. A fly can be missed or receive multiple IDs, so this is an activity indicator, not an exact number of individual flies.</div>
       </article>
       <article class="card">
         <div class="card-head"><strong>Observation guide</strong><span class="sub">Human review recommended</span></div>
         <div class="species">
-          <p class="species-title">SUPPORTED PRETRAINED LABELS</p>
+          <p class="species-title">TARGET DETECTOR</p>
           <div class="species-list">
-            <div class="species-item">Bird <span class="sub">feeder visitors</span></div>
-            <div class="species-item">Elephant · Zebra · Giraffe</div>
-            <div class="species-item">Bear · Horse · Sheep · Cow</div>
-            <div class="species-item">Cat · Dog</div>
+            <div class="species-item">Fruit fly <span class="sub">custom trained label</span></div>
+            <div class="species-item">Close-up capture <span class="sub">macro / focus-capable camera</span></div>
+            <div class="species-item">High-resolution inference <span class="sub">default 1280 px</span></div>
           </div>
         </div>
-        <div class="note">The prototype reports what the detector sees in the frame. It does not infer animal health, habitat quality, or conservation status.</div>
+        <div class="note">The default COCO model cannot detect fruit flies. Train the custom checkpoint on labeled fruit-camera footage before using the monitor.</div>
       </article>
     </aside>
   </section>
   <section class="card history">
-    <div class="card-head"><strong>Recent sightings</strong><span class="sub">Latest camera sessions</span></div>
+    <div class="card-head"><strong>Recent fly detections</strong><span class="sub">Latest camera sessions</span></div>
     <table><thead><tr><th>Species label</th><th>First seen (UTC)</th><th>Confidence</th><th>Camera session</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="sub">Sightings will appear here after detections.</td></tr></tbody></table>
   </section>
-  <footer class="footer">HabitatSignal · Computer vision supports observation; ecological conclusions need field validation.<br><a href="https://github.com/zaidmoen/HabitatSignal/tree/feat/live-wildlife-monitoring" target="_blank" rel="noopener">Source code</a> · AGPL-3.0</footer>
+  <footer class="footer">HabitatSignal · Insect detections need validation against close-up footage.<br><a href="https://github.com/zaidmoen/HabitatSignal/tree/feat/live-wildlife-monitoring" target="_blank" rel="noopener">Source code</a> · AGPL-3.0</footer>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -91,7 +90,7 @@ function renderSpecies(counts) {
   const max = Math.max(1, ...entries.map(([,count])=>count));
   $("species-list").innerHTML = entries.length ? entries.map(([species,count]) =>
     `<div class="species-item"><span>${species}</span><span class="bar"><i style="width:${Math.round(count/max*100)}%"></i></span><span class="count">${count}</span></div>`
-  ).join("") : '<div class="empty-row">No animals detected yet</div>';
+  ).join("") : '<div class="empty-row">No flies detected yet</div>';
 }
 
 async function refresh() {

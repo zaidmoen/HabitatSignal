@@ -1,4 +1,4 @@
-"""HabitatSignal local wildlife observation dashboard."""
+"""HabitatSignal close-up fruit-fly observation dashboard."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from habitatsignal.monitor import WildlifeMonitor
 
 ROOT = Path(__file__).resolve().parent
 DATABASE_PATH = Path(os.environ.get("HABITATSIGNAL_DB", ROOT / "data" / "observations.sqlite3"))
-MODEL_PATH = os.environ.get("HABITATSIGNAL_MODEL", "yolo26n.pt")
+MODEL_PATH = os.environ.get("HABITATSIGNAL_MODEL", str(ROOT / "models" / "fruitfly.pt"))
 
 app = Flask(__name__)
 store = ObservationStore(DATABASE_PATH)

@@ -1,4 +1,4 @@
-"""Small SQLite store for track-level wildlife observations."""
+"""Small SQLite store for track-level insect observations."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ def utc_now() -> str:
 
 
 class ObservationStore:
-    """Persist one row when a new tracked animal first appears in a run."""
+    """Persist one row when a new tracked detection first appears in a run."""
 
     def __init__(self, path: str | Path):
         self.path = Path(path)

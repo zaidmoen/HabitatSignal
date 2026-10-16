@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from habitatsignal.database import ObservationStore
-from habitatsignal.species import WILDLIFE_CLASS_IDS, label_for, model_class_ids
+from habitatsignal.species import WILDLIFE_CLASS_IDS, label_for, model_class_ids, names_by_id
 from habitatsignal.sources import is_youtube_url, resolve_youtube_stream
 
 
@@ -12,6 +12,8 @@ class SpeciesTests(unittest.TestCase):
         self.assertEqual(label_for(20), "elephant")
         self.assertIsNone(label_for(2))
         self.assertEqual(model_class_ids(), sorted(WILDLIFE_CLASS_IDS))
+        self.assertEqual(names_by_id({0: "fruitfly", "1": "other_fly"}), {0: "fruitfly", 1: "other_fly"})
+        self.assertEqual(model_class_ids({0: "fruitfly"}), [0])
 
 
 class SourceTests(unittest.TestCase):
@@ -26,8 +28,11 @@ class SourceTests(unittest.TestCase):
         from unittest.mock import patch
 
         class FakeDownloader:
+            last_options = None
+
             def __init__(self, options):
                 self.options = options
+                type(self).last_options = options
 
             def __enter__(self):
                 return self
@@ -45,6 +50,7 @@ class SourceTests(unittest.TestCase):
                 resolve_youtube_stream("https://www.youtube.com/live/example"),
                 "https://media.example/live.m3u8",
             )
+        self.assertEqual(FakeDownloader.last_options["format"], "best/bestvideo*")
 
 
 class StoreTests(unittest.TestCase):

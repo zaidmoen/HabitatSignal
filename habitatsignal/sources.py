@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from urllib.parse import urlparse
 
 
@@ -28,13 +29,16 @@ def resolve_youtube_stream(source: str) -> str:
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
-        "format": "best",
+        # Some live streams have no combined audio/video format. OpenCV only
+        # needs the video, so fall back to the best video-containing format.
+        "format": "best/bestvideo*",
     }
     try:
         with yt_dlp.YoutubeDL(options) as downloader:
             info = downloader.extract_info(source, download=False)
     except Exception as exc:
-        raise RuntimeError(f"Could not open this YouTube stream: {exc}") from exc
+        message = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", str(exc))
+        raise RuntimeError(f"Could not open this YouTube stream: {message}") from exc
 
     stream_url = info.get("url") if isinstance(info, dict) else None
     if not stream_url:

@@ -35,7 +35,7 @@ def start_monitoring():
     payload = request.get_json(silent=True) or {}
     source = str(payload.get("source", "")).strip()
     if not source:
-        return jsonify({"error": "Enter a camera index, video path, or direct stream URL."}), 400
+        return jsonify({"error": "Enter a camera index, video path, or direct stream/YouTube URL."}), 400
     if len(source) > 500:
         return jsonify({"error": "The video source is too long."}), 400
 

@@ -23,12 +23,12 @@
   </header>
   <section class="intro">
     <div><div class="eyebrow">Field observation · Prototype</div><h2>See who visits the habitat.</h2><p>Track wildlife appearances from a fixed camera and turn video into a clear, reviewable observation log.</p></div>
-    <form class="source-form" id="source-form"><input id="source" autocomplete="off" placeholder="Camera index, video path, or direct RTSP/HTTP stream URL" value="0"><button class="btn start" id="start-button" type="submit">Start monitor</button><button class="btn stop" id="stop-button" type="button" disabled>Stop</button></form>
+    <form class="source-form" id="source-form"><input id="source" autocomplete="off" placeholder="Camera, video, RTSP/HTTP stream, or YouTube Live URL" value="0"><button class="btn start" id="start-button" type="submit">Start monitor</button><button class="btn stop" id="stop-button" type="button" disabled>Stop</button></form>
   </section>
   <section class="grid">
     <article class="card">
       <div class="card-head"><strong>Live camera</strong><span class="sub" id="source-name">No source connected</span></div>
-      <div class="feed"><div id="empty" class="empty"><div class="icon">◉</div><strong>Camera feed is waiting</strong><p>Connect a camera or a direct video stream. For a first test, use a local webcam or a short wildlife video.</p></div><img id="feed-image" alt="Annotated wildlife camera stream"></div>
+      <div class="feed"><div id="empty" class="empty"><div class="icon">◉</div><strong>Camera feed is waiting</strong><p>Paste a public YouTube Live link, connect a direct camera stream, or test with a local wildlife video.</p></div><img id="feed-image" alt="Annotated wildlife camera stream"></div>
       <div class="feed-meta"><span id="frame-count">0 frames analyzed</span><span id="last-frame">Waiting for first frame</span></div>
       <div class="error" id="error-message" hidden></div>
     </article>

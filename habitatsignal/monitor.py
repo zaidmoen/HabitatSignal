@@ -21,9 +21,11 @@ class WildlifeMonitor:
         self.store = store
         self.model_path = model_path
         self._lock = threading.RLock()
+        self._frame_condition = threading.Condition(self._lock)
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
         self._latest_jpeg: bytes | None = None
+        self._frame_version = 0
         self._status = "idle"
         self._error: str | None = None
         self._run_id: str | None = None
@@ -53,6 +55,7 @@ class WildlifeMonitor:
             self._source_label = f"Camera {source}" if source.isdecimal() else Path(source).name if "://" not in source else "Network camera"
             self._status = "starting"
             self._error = None
+            self._latest_jpeg = None
             self._active_tracks = {}
             self._observed_track_ids = set()
             self._total_frames = 0
@@ -131,8 +134,10 @@ class WildlifeMonitor:
                 if encoded_ok:
                     with self._lock:
                         self._latest_jpeg = encoded.tobytes()
+                        self._frame_version += 1
                         self._total_frames += 1
                         self._last_frame_at = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
+                        self._frame_condition.notify_all()
 
             with self._lock:
                 self._status = "idle"
@@ -177,14 +182,21 @@ class WildlifeMonitor:
             self._active_tracks = current_tracks
 
     def mjpeg_stream(self) -> Iterator[bytes]:
+        with self._lock:
+            last_version = self._frame_version
         while True:
-            with self._lock:
+            with self._frame_condition:
+                self._frame_condition.wait_for(
+                    lambda: self._frame_version > last_version or self._status in {"idle", "error"},
+                    timeout=10,
+                )
                 frame = self._latest_jpeg
+                version = self._frame_version
                 status = self._status
-            if frame:
+            if frame and version > last_version:
+                last_version = version
                 yield b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
-            elif status in {"idle", "error"}:
-                time.sleep(0.25)
-            else:
-                time.sleep(0.05)
+            if status in {"idle", "error"}:
+                return
+
 

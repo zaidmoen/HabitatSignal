@@ -26,8 +26,11 @@ class SourceTests(unittest.TestCase):
         from unittest.mock import patch
 
         class FakeDownloader:
+            last_options = None
+
             def __init__(self, options):
                 self.options = options
+                type(self).last_options = options
 
             def __enter__(self):
                 return self
@@ -45,6 +48,7 @@ class SourceTests(unittest.TestCase):
                 resolve_youtube_stream("https://www.youtube.com/live/example"),
                 "https://media.example/live.m3u8",
             )
+        self.assertEqual(FakeDownloader.last_options["format"], "best/bestvideo*")
 
 
 class StoreTests(unittest.TestCase):

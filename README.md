@@ -6,7 +6,7 @@ The hackathon prototype focuses on one honest outcome: **showing which supported
 
 ## What it does
 
-- Reads a local webcam, existing video file, or direct RTSP/HTTP video stream.
+- Reads a local webcam, existing video file, direct RTSP/HTTP video stream, or public YouTube video/live page.
 - Runs a pretrained Ultralytics YOLO model and ByteTrack on the video frames.
 - Shows annotated detections in a browser dashboard.
 - Logs one sighting when each track first appears in a monitoring session.
@@ -39,15 +39,16 @@ Open `http://127.0.0.1:5000` in a browser. The first run downloads the selected 
 - `path/to/wildlife.mp4` — an existing video file
 - `rtsp://...` — a direct RTSP camera stream
 - `https://...` — a direct HTTP video or MJPEG stream, when the camera provider permits it
+- `https://www.youtube.com/live/...` or `https://youtu.be/...` — a public YouTube live/video page; HabitatSignal uses `yt-dlp` to resolve its temporary media stream
 
-The public viewing page for a nature webcam is often an embedded player, not a direct video stream. HabitatSignal cannot read frames from an arbitrary web page or bypass a provider's access controls. Use a provider-approved direct stream, a local camera, or a video file you are allowed to analyze. For a hackathon demo, test the selected source and prepare a permitted wildlife clip as a fallback.
+YouTube extraction depends on YouTube's current player and may need a newer `yt-dlp` release; if a public link stops working, update it with `python -m pip install --upgrade yt-dlp`. Other public webcam pages may be embedded players rather than direct video streams. HabitatSignal cannot read frames from arbitrary pages or bypass provider access controls. Use a public source you are allowed to analyze. For a hackathon demo, test the selected source and prepare a wildlife clip as a fallback.
 
 ## Demo plan
 
 1. Start with a prepared wildlife clip to confirm that the model and dashboard work.
 2. Use a fixed camera scene and show boxes, labels, and track IDs on detected animals.
 3. Show the session's sighting log and explain that a detection is a camera-view observation, not a distinct animal or a population count.
-4. If a direct stream is available and authorized, switch the source to the live feed.
+4. Paste the public YouTube Live page or direct stream URL to switch to the live feed.
 
 ## Configuration
 

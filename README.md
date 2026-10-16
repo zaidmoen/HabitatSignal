@@ -86,6 +86,6 @@ tests/                    core behavior tests
 
 ## Attribution and model terms
 
-This prototype uses the Ultralytics Python package and pretrained model weights. Review the current [Ultralytics license and model terms](https://www.ultralytics.com/license) before redistribution or commercial use. The wildlife monitoring workflow was informed by the open-source [Backyard Critter Cam](https://github.com/unclemattmakes/backyard-critter-cam); this repository contains a separate implementation. The Backyard Critter Cam repository is licensed under AGPL-3.0.
+This project is released under the GNU Affero General Public License v3.0; see `LICENSE`. It uses the Ultralytics Python package and pretrained model weights, which have their own terms. Review the current [Ultralytics license and model terms](https://www.ultralytics.com/license) before redistribution or commercial use. The wildlife monitoring workflow was informed by the open-source [Backyard Critter Cam](https://github.com/unclemattmakes/backyard-critter-cam); this repository contains a separate implementation. The Backyard Critter Cam repository is also licensed under AGPL-3.0.
 
 HabitatSignal is an educational prototype. It is not a substitute for conservation science, wildlife professionals, or environmental authorities.

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from habitatsignal.database import ObservationStore
 from habitatsignal.species import WILDLIFE_CLASS_IDS, label_for, model_class_ids
+from habitatsignal.sources import is_youtube_url, resolve_youtube_stream
 
 
 class SpeciesTests(unittest.TestCase):
@@ -11,6 +12,39 @@ class SpeciesTests(unittest.TestCase):
         self.assertEqual(label_for(20), "elephant")
         self.assertIsNone(label_for(2))
         self.assertEqual(model_class_ids(), sorted(WILDLIFE_CLASS_IDS))
+
+
+class SourceTests(unittest.TestCase):
+    def test_youtube_live_and_short_links_are_recognized(self):
+        self.assertTrue(is_youtube_url("https://www.youtube.com/live/example"))
+        self.assertTrue(is_youtube_url("https://youtu.be/example"))
+        self.assertFalse(is_youtube_url("https://youtube.com.example.org/live/example"))
+        self.assertFalse(is_youtube_url("file:///tmp/video.mp4"))
+
+    def test_youtube_extractor_returns_playable_url(self):
+        import sys
+        from unittest.mock import patch
+
+        class FakeDownloader:
+            def __init__(self, options):
+                self.options = options
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def extract_info(self, source, download):
+                self.request = (source, download)
+                return {"url": "https://media.example/live.m3u8"}
+
+        fake_module = type("FakeYtDlp", (), {"YoutubeDL": FakeDownloader})
+        with patch.dict(sys.modules, {"yt_dlp": fake_module}):
+            self.assertEqual(
+                resolve_youtube_stream("https://www.youtube.com/live/example"),
+                "https://media.example/live.m3u8",
+            )
 
 
 class StoreTests(unittest.TestCase):
